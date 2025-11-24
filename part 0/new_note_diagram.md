@@ -10,7 +10,7 @@ sequenceDiagram
     server-->>browser: HTML document
     deactivate server
 
-    Note right of the browser: Since the server responds with HTTP status code 302, a URL redirect, the browser perform a new HTTP GET request to the address defined in the header's Location - the address /notes. So, the browser reloads the Notes page.
+    Note right of browser: Since the server responds with HTTP status code 302, a URL redirect, the browser perform a new HTTP GET request to the address defined in the header's Location - the address /notes. So, the browser reloads the Notes page.
 
     browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/notes
     activate server
