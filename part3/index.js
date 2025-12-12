@@ -1,23 +1,29 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const morgan  = require('morgan')
-const cors = require('cors')
+const Person = require('./models/persons')
+/// const cors = require('cors')
 
+/// static front-end code, for deploying to the internet
 app.use(express.static('dist'))
 /// app.use(cors())
 app.use(express.json())
+
+/// ------------------------------------------------------------------ MORGAN (FOR LOGGING)
 /// app.use(morgan('tiny'))
 
-// 自定义token
+// define custom token
 morgan.token('body', function(request, response){
     return JSON.stringify(request.body) || '-';
 });
 
-// 自定义format，其中包含自定义的token
+// define custom format, including custom token
 morgan.format('post', ':method :url :status :res[content-length] - :response-time ms :body');
 
-// 使用自定义的format
+// apply custom format
 app.use(morgan('post'));
+/// -------------------------------------------------------------------
 
 let persons = [
     { 
@@ -49,17 +55,15 @@ app.get('/info', (request, response) => {
 })
 
 app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    Person.find({}).then(person => {
+        response.json(person)
+    })
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    const person = persons.find(p => p.id === id)
-    if (person) {
+    Person.findById(request.params.id).then(person => {
         response.json(person)
-    } else {
-        response.status(404).end()
-    }
+    })
 })
 
 const generateID = () => {
@@ -76,13 +80,14 @@ app.post('/api/persons', (request, response) => {
     } else if (!body.name || !body.number) {
         response.status(400).json({ error: 'name and number are required' })
     } else {
-        const person = {
+        const person = new Person({
             id:  generateID(),
             name: body.name,
             number: body.number
-        }
-        persons = persons.concat(person)
-        response.json(person)
+        })
+        person.save().then(savedPerson => {
+            response.json(savedPerson)
+        })
     }
 })
 
@@ -93,7 +98,7 @@ app.delete('/api/persons/:id', (request, response) => {
   response.status(204).end()
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
