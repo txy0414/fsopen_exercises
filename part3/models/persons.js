@@ -14,8 +14,22 @@ mongoose.connect(url, { family: 4 })
   })
 
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minLength: 3,
+    required: true
+  },
+  number: {
+    type: String,
+    minLength: 8,
+    required: true,
+    validate: {
+      validator: function numberValidator(number) {
+            return ((number.match(/-/g) || []).length === 1) && (number.indexOf('-') === 2 || number.indexOf('-') === 3)
+        },
+      message: "This is not a valid phone number!"
+    },
+  },
   id: String,
 })
 

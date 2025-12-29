@@ -68,8 +68,16 @@ const App = () => {
           setPersons(persons.concat(returnedPerson))
           setNewName('')
           setNewNumber('')
+          sendNotification(`Added ${newName}`)
         })
-      sendNotification(`Added ${newName}`)
+        .catch(error => {
+          // this is the way to access the error message
+          console.log(error.response.data.error)
+          setError(error.response.data.error)
+          setTimeout(() => {
+            setError(null)
+          }, 5000)
+        })
     }
   }
 
